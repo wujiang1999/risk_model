@@ -28,6 +28,7 @@ import seaborn as sns
 from collections import defaultdict
 import logging
 import os
+import psutil
 
 ### 对于下列所有函数，都可以使用toad原生库进行计算
 ### toad计算分箱时，通常是每一个唯一值分一箱，为了减少计算量可以预分箱
@@ -93,7 +94,6 @@ def feature_evaluate_by_bin(df, feature, label, bin_nums = 10, precision = 3):
     tp['iv'] = tp['iv'].round(precision)
     tp['lift'] = tp['lift'].round(precision)
     return tp
-
 
 
 if __name__ == "__main__":
