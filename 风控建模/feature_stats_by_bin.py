@@ -33,7 +33,7 @@ import psutil
 ### 对于下列所有函数，都可以使用toad原生库进行计算
 ### toad计算分箱时，通常是每一个唯一值分一箱，为了减少计算量可以预分箱
 ### 特征分箱并计算woe、iv、ks等基础指标
-def feature_evaluate_by_bin(df, feature, label, bin_nums = 10, precision = 3):
+def feature_stats_by_bin(df, feature, label, bin_nums = 10, precision = 3):
     data = df.copy()
     data[feature] = data[feature].replace(np.nan, -9999)
     data[label] = pd.to_numeric(data[label])
@@ -104,6 +104,6 @@ if __name__ == "__main__":
         'feature': feature_column,
         'label': label_column
     })
-    print(feature_evaluate_by_bin(df, 'feature', 'label'))
+    print(feature_stats_by_bin(df, 'feature', 'label'))
     
     print(-9999 == -9999)
