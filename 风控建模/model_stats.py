@@ -31,7 +31,7 @@ import os
 import psutil
 
 ### 基础指标的计算 auc ks lift psi
-### 以上计算目前基于sklearn的api 可以尝试手撕
+### 给出基于sklearn-api及手撕版本
 ### 定义静态类 其中方法可以通过BasicIndexCal.ks_cal()直接调用
 class BasicIndexCal:
     @staticmethod
@@ -41,7 +41,8 @@ class BasicIndexCal:
         pred = np.where(np.isin(pred, exclude_value), np.nan, pred)
         valid_idx = np.where((~np.isnan(label)) & (~np.isnan(pred)))[0]
         return label[valid_idx], pred[valid_idx]
-
+    
+    @staticmethod
     def ks_cal(label, pred):
         label, pred = BasicIndexCal.preprocess_cal(label, pred)
         if np.corrcoef(label, pred)[0, 1] > 0:
@@ -50,6 +51,7 @@ class BasicIndexCal:
             fpr, tpr, _ = roc_curve(label, 1 - pred)
         return np.max(tpr - fpr)
     
+    @staticmethod
     def ks_cal_manual(label, pred):
         label, pred = BasicIndexCal.preprocess_cal(label, pred)
         if np.corrcoef(label, pred)[0, 1] > 0:
@@ -61,6 +63,12 @@ class BasicIndexCal:
         data['tpr'] = data['cum_pos'] / (data['label'] == 1).sum()
         data['fpr'] = data['cum_neg'] / (data['label'] == 0).sum()
         return np.max(data['tpr'] - data['fpr'])
+    
+    ### AUC的计算涉及到数值积分 np里面的梯形积分 在此不给出手撕版本
+    @staticmethod
+    def auc_cal(label, pred):
+        label, pred = BasicIndexCal.preprocess_cal(label, pred)
+        return max(roc_auc_score(label, pred), roc_auc_score(label, 1 - pred))
 
 
 if __name__ == "__main__":
