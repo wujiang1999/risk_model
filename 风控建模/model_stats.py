@@ -69,14 +69,33 @@ class BasicIndexCal:
     def auc_cal(label, pred):
         label, pred = BasicIndexCal.preprocess_cal(label, pred)
         return max(roc_auc_score(label, pred), roc_auc_score(label, 1 - pred))
-
+    
+    ### IV的计算 手撕版本可见feature_stats_by_bin 可以对于唯一值分箱 也可以等频分箱
+    @staticmethod
+    def iv_cal(label, pred, return_sub = False):
+        label, pred = BasicIndexCal.preprocess_cal(label, pred)
+        return toad.stats.IV(pred, label, return_sub = return_sub)
+    
+    ### 基于分位点计算头尾部lift
+    @staticmethod
+    def lift_cal(label, pred, quantile = 0.1):
+        label, pred = BasicIndexCal.preprocess_cal(label, pred)
+        top_q_percent_idx = np.argsort(pred)[-int(quantile * len(pred)):]
+        bot_q_percent_idx = np.argsort(pred)[:int(quantile * len(pred))]
+        top_q_percent_lift = np.mean(label[top_q_percent_idx]) / np.mean(label)
+        bot_q_percent_lift = np.mean(label[bot_q_percent_idx]) / np.mean(label)
+        return bot_q_percent_lift, top_q_percent_lift
+    
+        
+        
 
 if __name__ == "__main__":
     y_true = [0, 0, 1, 1, 1, 0, 1, 0, 0, 1]
     y_score = [0.1, 0.4, 0.35, 0.8, 0.7, 0.2, 0.9, 0.5, 0.3, 0.85]
     y_score1 = [(1 - x) for x in y_score]
-    print(np.corrcoef(y_true, y_score)[0, 1], np.corrcoef(y_true, y_score1)[0, 1])
-    print(BasicIndexCal.ks_cal(y_true, y_score), BasicIndexCal.ks_cal(y_true, y_score1))
-    print(BasicIndexCal.ks_cal_manual(y_true, y_score), BasicIndexCal.ks_cal_manual(y_true, y_score1))
+    # print(np.corrcoef(y_true, y_score)[0, 1], np.corrcoef(y_true, y_score1)[0, 1])
+    # print(BasicIndexCal.ks_cal(y_true, y_score), BasicIndexCal.ks_cal(y_true, y_score1))
+    # print(BasicIndexCal.ks_cal_manual(y_true, y_score), BasicIndexCal.ks_cal_manual(y_true, y_score1))
+    print(BasicIndexCal.lift_cal(y_true, y_score))
 
 
