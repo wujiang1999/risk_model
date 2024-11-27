@@ -29,6 +29,8 @@ from collections import defaultdict
 import logging
 import os
 import psutil
+# pd.set_option('display.max_columns', None)
+# pd.set_option('display.max_rows', None)
 
 ### 获取前一日ds
 def bizdate():
@@ -108,6 +110,12 @@ def generate_new_paths(pkl_path, items):
     # 为每个元素生成新的路径
     new_paths = os.path.join(dir_path, f"{base_name}_{items}{ext}")
     return new_paths
+
+### 按照模型分的次序进行加权
+def fusion_score_by_rank(score1, score2, weight):
+    rank_1 = pd.Series(score1).rank(ascending = False).values / len(score1)
+    rank_2 = pd.Series(score2).rank(ascending = False).values / len(score2)
+    return (rank_1 * weight + rank_2 * (1 - weight)).tolist()
 
 if __name__ == "__main__":
     print(bizdate())

@@ -30,9 +30,8 @@ import logging
 import os
 import psutil
 
-### 基础指标的计算 auc ks lift psi
-### 给出基于sklearn-api及手撕版本
-### 定义静态类 其中方法可以通过BasicIndexCal.ks_cal()直接调用
+### 注意 虽然该类中有特征及Y预处理功能 但是建议将预处理完的数据直接导入
+
 class BasicIndexCal:
     @staticmethod
     def preprocess_cal(label, pred, exclude_value = [-1, -99, -999, -9999]):
@@ -85,61 +84,7 @@ class BasicIndexCal:
         top_q_percent_lift = np.mean(label[top_q_percent_idx]) / np.mean(label)
         bot_q_percent_lift = np.mean(label[bot_q_percent_idx]) / np.mean(label)
         return bot_q_percent_lift, top_q_percent_lift
+
+### 未完待续
+class LightGBMHyperoptModeling(BasicIndexCal):
     
-### 基础指标矩阵计算
-class BasicMatrixCal(BasicIndexCal):
-    def __init__(self, data, time_col, fea_col, label_col, precision = 4):
-        self.data = data
-        self.time_col = time_col
-        self.fea_col = fea_col
-        if not label_col:
-            self.label_col = label_col
-        self.precision = precision
-        
-        self.data[self.time_col] = pd.to_datetime(self.data[self.time_col])
-        self.data['Month'] = self.data[self.time_col].dt.strftime('%Y-%m')
-        self.month_list = self.data['Month'].unique()
-
-    def ks_matrix_cal(self):
-        ks_matrix = pd.DataFrame(np.zeros((len(self.month_list), len(sorted(self.label_col)))), index = sorted(self.month_list), columns = sorted(self.label_col))
-        for i in ks_matrix.index:
-            for j in ks_matrix.columns:
-                data_slice = self.data[self.data['Month'] == i]
-                try:
-                    ks_matrix.loc[i, j] = self.ks_cal(data_slice[j], data_slice[self.fea_col])
-                except:
-                    ks_matrix.loc[i, j] = np.nan
-        return round(ks_matrix, self.precision)
-
-    def auc_matrix_cal(self):
-        auc_matrix = pd.DataFrame(np.zeros((len(self.month_list), len(sorted(self.label_col)))), index = sorted(self.month_list), columns = sorted(self.label_col))
-        for i in auc_matrix.index:
-            for j in auc_matrix.columns:
-                data_slice = self.data[self.data['Month'] == i]
-                try:
-                    auc_matrix.loc[i, j] = self.auc_cal(data_slice[j], data_slice[self.fea_col])
-                except:
-                    auc_matrix.loc[i, j] = np.nan
-        return round(auc_matrix, self.precision)
-    
-    ### toad实现psi计算是对series进行value_counts 再计算分布的差异
-    def psi_matrix_cal(self):
-        psi_matrix = pd.DataFrame(np.zeros((len(self.month_list), len(self.month_list))), index = self.month_list, columns = self.month_list)
-        for i in psi_matrix.index:
-            for j in psi_matrix.columns:
-                try:
-                    psi_matrix.loc[i, j] = self.psi_cal(self.data[(self.data['Month'] == i)][self.fea_col], self.data[(self.data['Month'] == j)][self.fea_col])
-                except:
-                    psi_matrix.loc[i, j] = np.nan
-        return round(psi_matrix, self.precision) 
-        
-if __name__ == "__main__":
-    y_true = [0, 0, 1, 1, 1, 0, 1, 0, 0, 1]
-    y_score = [0.1, 0.4, 0.35, 0.8, 0.7, 0.2, 0.9, 0.5, 0.3, 0.85]
-    y_score1 = [(1 - x) for x in y_score]
-    # print(np.corrcoef(y_true, y_score)[0, 1], np.corrcoef(y_true, y_score1)[0, 1])
-    # print(BasicIndexCal.ks_cal(y_true, y_score), BasicIndexCal.ks_cal(y_true, y_score1))
-    # print(BasicIndexCal.ks_cal_manual(y_true, y_score), BasicIndexCal.ks_cal_manual(y_true, y_score1))
-    print(BasicIndexCal.lift_cal(y_true, y_score))
-
-
