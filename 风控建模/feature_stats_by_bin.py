@@ -1,34 +1,5 @@
-import math
-import random
 import pandas as pd
 import numpy as np
-import toad
-import warnings
-import datetime
-import xgboost as xgb
-import lightgbm as lgb
-from sklearn.metrics import roc_auc_score
-from sklearn.metrics import roc_curve
-pd.options.mode.chained_assignment = None
-from lightgbm import LGBMClassifier
-from sklearn.metrics import roc_auc_score
-from hyperopt import hp, tpe, fmin, Trials, STATUS_OK
-import warnings
-warnings.simplefilter(action='ignore', category = FutureWarning)
-import gc
-gc.enable()
-import time
-import pickle
-from functools import reduce
-from sklearn.model_selection import StratifiedKFold
-np.random.seed(823)
-import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
-import seaborn as sns
-from collections import defaultdict
-import logging
-import os
-import psutil
 
 ### 对于下列所有函数，都可以使用toad原生库进行计算
 ### toad计算分箱时，通常是每一个唯一值分一箱，为了减少计算量可以预分箱

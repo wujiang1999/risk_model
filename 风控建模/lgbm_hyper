@@ -1,15 +1,9 @@
-import math
-import random
 import pandas as pd
 import numpy as np
 import toad
 import warnings
-import datetime
-import xgboost as xgb
 import lightgbm as lgb
-from sklearn.metrics import roc_auc_score
-from sklearn.metrics import roc_curve
-pd.options.mode.chained_assignment = None
+from sklearn.metrics import roc_auc_score, roc_curve
 from lightgbm import LGBMClassifier
 from sklearn.metrics import roc_auc_score
 from hyperopt import hp, tpe, fmin, Trials, STATUS_OK
@@ -19,16 +13,9 @@ import gc
 gc.enable()
 import time
 import pickle
-from functools import reduce
-from sklearn.model_selection import StratifiedKFold
 np.random.seed(823)
-import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
-import seaborn as sns
-from collections import defaultdict
 import logging
 import os
-import psutil
 
 class BasicIndexCal:
     @staticmethod

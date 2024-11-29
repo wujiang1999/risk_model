@@ -1,36 +1,24 @@
-import math
-import random
 import pandas as pd
 import numpy as np
-import toad
 import warnings
 import datetime
 import xgboost as xgb
 import lightgbm as lgb
-from sklearn.metrics import roc_auc_score
-from sklearn.metrics import roc_curve
-pd.options.mode.chained_assignment = None
 from lightgbm import LGBMClassifier
-from sklearn.metrics import roc_auc_score
-from hyperopt import hp, tpe, fmin, Trials, STATUS_OK
+from xgboost import XGBClassifier
+pd.options.mode.chained_assignment = None
 import warnings
 warnings.simplefilter(action='ignore', category = FutureWarning)
 import gc
 gc.enable()
-import time
 import pickle
 from functools import reduce
 from sklearn.model_selection import StratifiedKFold
 np.random.seed(823)
-import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
-import seaborn as sns
-from collections import defaultdict
-import logging
 import os
-import psutil
 # pd.set_option('display.max_columns', None)
 # pd.set_option('display.max_rows', None)
+from lightgbm import LGBMClassifier
 
 ### 获取前一日ds
 def bizdate():
