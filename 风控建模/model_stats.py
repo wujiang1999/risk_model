@@ -11,8 +11,7 @@ import gc
 gc.enable()
 np.random.seed(823)
 
-### 基础指标的计算 auc ks lift psi
-### 给出基于sklearn-api及手撕版本
+### 基础指标的计算 auc ks lift psi 给出基于sklearn-api及手撕版本
 ### 定义静态类 其中方法可以通过BasicIndexCal.ks_cal()直接调用
 class BasicIndexCal:
     @staticmethod
