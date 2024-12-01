@@ -45,7 +45,6 @@ if __name__ == "__main__":
         'n_estimators': 100,
         'learning_rate': 0.05,
         'max_depth': 7,
-    # 其他参数可以省略，这些会使用默认值
     }
 
     model = initialize_lgbm(space)
