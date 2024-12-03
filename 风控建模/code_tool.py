@@ -69,7 +69,8 @@ def get_file(path):
     return sorted(files)
 
 ### 时间列的标准化
-def df_time_process(data, time_col, add_month_col = False, month_col = 'month'):
+def df_time_process(df, time_col, add_month_col = False, month_col = 'month'):
+    data = df.copy()
     data[time_col] = pd.to_datetime(data[time_col])
     if add_month_col:
         data[month_col] = data[time_col].dt.strftime('%Y-%m')

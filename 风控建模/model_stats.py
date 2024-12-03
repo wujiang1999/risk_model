@@ -10,6 +10,7 @@ warnings.simplefilter(action='ignore', category = FutureWarning)
 import gc
 gc.enable()
 np.random.seed(823)
+from code_tool import df_time_process
 
 ### 基础指标的计算 auc ks lift psi 给出基于sklearn-api及手撕版本
 ### 定义静态类 其中方法可以通过BasicIndexCal.ks_cal()直接调用
@@ -111,7 +112,30 @@ class BasicMatrixCal(BasicIndexCal):
                     psi_matrix.loc[i, j] = self.psi_cal(self.data[(self.data['Month'] == i)][self.fea_col], self.data[(self.data['Month'] == j)][self.fea_col])
                 except:
                     psi_matrix.loc[i, j] = np.nan
-        return round(psi_matrix, self.precision) 
+        return round(psi_matrix, self.precision)
+    
+### 特征按月分箱观察变量稳定性和偏移情况
+def bin_by_month(df, time_col, fea_col, bin_nums = 10, base_month = False, if_format = True):
+    data = df_time_process(df = df, time_col = time_col, add_month_col = True)
+    mon_list = list(sorted(data['month'].unique()))
+    if base_month:
+        _, bins = pd.qcut(data[data['month'] == base_month][fea_col], q = bin_nums, retbins = True)
+    else:
+        _, bins = pd.qcut(data[data['month'] == mon_list[0]][fea_col], q = bin_nums, retbins = True)
+    bins[0], bins[-1] = -np.inf, np.inf
+    bins = np.unique(bins)
+    
+    fenxianglist = []
+    for mon in mon_list:
+        data_slice = data[data['month'] == mon]
+        data_slice['bin'] = pd.cut(data_slice[fea_col], bins = bins, include_lowest = True)
+        fenxiang_by_month = data_slice.groupby('bin', dropna = False).agg({'month':'count'}) / len(data_slice)
+        fenxiang_by_month.columns = [mon]
+        if if_format:
+            fenxiang_by_month[mon] = fenxiang_by_month[mon].map(lambda x:'{:.2%}'.format(x))
+        fenxianglist.append(fenxiang_by_month)    
+    return pd.concat(fenxianglist, axis = 1)
+    
         
 if __name__ == "__main__":
     y_true = [0, 0, 1, 1, 1, 0, 1, 0, 0, 1]
