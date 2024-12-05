@@ -6,8 +6,7 @@ import gc
 gc.enable()
 import time
 
-
-### 通过shuffle y来计算实际特征重要性
+### 通过shuffle y来计算实际特征重要性 区别于对X做permutation
 class NullImportanceFeatureSelection():
     def __init__(self, data, time_col, label_col,  num_col, cate_col,
                  actual_imp_df_path, null_imp_df_path, scores_df_path,

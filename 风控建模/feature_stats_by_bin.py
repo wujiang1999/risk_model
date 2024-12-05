@@ -54,7 +54,6 @@ def feature_stats_by_bin(df, feature, label, bin_nums = 10, precision = 3, if_fo
         tp['lift'] = tp['lift'].round(precision)
     return tp
 
-
 if __name__ == "__main__":
     feature_column = np.random.uniform(0, 100, 1000)
     label_column = np.random.randint(0, 2, 1000)

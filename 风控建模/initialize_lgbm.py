@@ -1,8 +1,6 @@
 import lightgbm as lgb
 from lightgbm import LGBMClassifier
 
-from lightgbm import LGBMClassifier
-
 def initialize_lgbm(space):
     """
     Initialize an LGBMClassifier using parameters from the `space` dictionary.
@@ -18,7 +16,6 @@ def initialize_lgbm(space):
     model = lgb.LGBMClassifier(**space)
     
     return model
-
 
 if __name__ == "__main__":
     space = {
