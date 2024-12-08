@@ -79,19 +79,20 @@ class EarlyStopping:
         else:
             raise ValueError("mode must be 'min' or 'max'")
         
+    ### __call__允许对象的实例可以像函数一样被调用
     def __call__(self, current_score, model):
         if self.best_score is None:
             self.best_score = current_score
             if self.verbose:
                 print(f'Initial {self.metric} is set as {self.best_score:.4f}')
             if self.restore_best_weights:
-                self.best_weights = self.__get_weights__(model.state_dict())
+                self.best_weights = self.get_weights(model.state_dict())
         elif self.is_improvement(current_score, self.best_score):
             if self.verbose:
                 improvement = 'raise' if self.mode == 'max' else 'fall'
                 print(f'{self.metric} {improvement} from {self.best_score:.4f} to {current_score:.4f}, early stopping count reset')
             if self.restore_best_weights:
-                self.best_weights = self.__get_weights__(model.state_dict())
+                self.best_weights = self.get_weights(model.state_dict())
             self.best_score = current_score
             self.count = 0
         else:
@@ -103,11 +104,10 @@ class EarlyStopping:
                     print(f'{self.metric} early stopping triggered after {self.count} rounds')
                 self.early_stop = True
             
-                
-    def __get_weights__(self, state_dict):
+    def get_weights(self, state_dict):
         return {k:v.clone().detach() for k, v in state_dict.items()}
     
-    def __load_best_weights__(self, model):
+    def load_best_weights(self, model):
         if self.best_weights:
             model.load_state_dict(self.best_weights)
 
@@ -212,7 +212,7 @@ if __name__ == "__main__":
 
     # 恢复最佳权重
     if early_stopping.restore_best_weights:
-        early_stopping.__load_best_weights__(model)
+        early_stopping.load_best_weights(model)
         print("Loaded best weights")
     
 
