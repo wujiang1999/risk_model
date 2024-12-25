@@ -103,23 +103,14 @@ class BasicMatrixCal(BasicIndexCal):
                     auc_matrix.loc[i, j] = np.nan
         return round(auc_matrix, self.precision)
     
-    ### toad实现psi计算是对series进行value_counts 再计算分布的差异
-    def psi_matrix_cal(self):
-        psi_matrix = pd.DataFrame(np.zeros((len(self.month_list), len(self.month_list))), index = self.month_list, columns = self.month_list)
-        for i in psi_matrix.index:
-            for j in psi_matrix.columns:
-                try:
-                    psi_matrix.loc[i, j] = self.psi_cal(self.data[(self.data['Month'] == i)][self.fea_col], self.data[(self.data['Month'] == j)][self.fea_col])
-                except:
-                    psi_matrix.loc[i, j] = np.nan
-        return round(psi_matrix, self.precision)
-    
 ### 特征按月分箱观察变量稳定性和偏移情况
-def bin_by_month(df, time_col, fea_col, bin_nums = 10, base_month = False, if_format = True):
-    data = df_time_process(df = df, time_col = time_col, add_month_col = True)
+def bin_by_month(df, time_col, fea_col, bin_nums = 10, base_month = False, epsilon = 1e-6,if_format = True):
+    data = df.copy()
+    data[time_col] = pd.to_datetime(df[time_col])
+    data['month'] = data[time_col].dt.strftime('%Y-%m')
     mon_list = list(sorted(data['month'].unique()))
     if base_month:
-        _, bins = pd.qcut(data[data['month'] == base_month][fea_col], q = bin_nums, retbins = True)
+        _, bins = pd.qcut(data[data['month'].isin(list(base_month))][fea_col], q = bin_nums, retbins = True)
     else:
         _, bins = pd.qcut(data[data['month'] == mon_list[0]][fea_col], q = bin_nums, retbins = True)
     bins[0], bins[-1] = -np.inf, np.inf
@@ -127,14 +118,22 @@ def bin_by_month(df, time_col, fea_col, bin_nums = 10, base_month = False, if_fo
     
     fenxianglist = []
     for mon in mon_list:
-        data_slice = data[data['month'] == mon]
+        data_slice = data[data['month'] == mon].copy()
         data_slice['bin'] = pd.cut(data_slice[fea_col], bins = bins, include_lowest = True)
         fenxiang_by_month = data_slice.groupby('bin', dropna = False).agg({'month':'count'}) / len(data_slice)
         fenxiang_by_month.columns = [mon]
-        if if_format:
-            fenxiang_by_month[mon] = fenxiang_by_month[mon].map(lambda x:'{:.2%}'.format(x))
-        fenxianglist.append(fenxiang_by_month)    
-    return pd.concat(fenxianglist, axis = 1)
+        fenxianglist.append(fenxiang_by_month)
+        # if if_format:
+        #     fenxiang_by_month[mon] = fenxiang_by_month[mon].map(lambda x:'{:.2%}'.format(x))
+    output = pd.concat(fenxianglist, axis = 1)
+    psi_matrix = pd.DataFrame(np.zeros((len(mon_list), len(mon_list))), index = mon_list, columns = mon_list)
+    for i in range(len(mon_list)):
+        for j in range(len(mon_list)):
+            psi_matrix.iloc[i, j] = np.sum((output.iloc[:, i] - output.iloc[:, j]) * (np.log(output.iloc[:, i] + epsilon) - np.log(output.iloc[:, j] + epsilon)))
+    if if_format:
+        for col in output.columns:
+            output[col] = output[col].map(lambda x:'{:.2%}'.format(x))
+    return output, psi_matrix
     
         
 if __name__ == "__main__":
